@@ -1,19 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { clearAuthToken } from "@/lib/auth/token";
+import { useLogout } from "@/hooks/useLogout";
 import { Bell, LogOut, MessageSquare, Search, Sparkles } from "lucide-react";
 
 export function TopBar() {
-  const router = useRouter();
-  function handleLogout() {
-    clearAuthToken();
-    router.replace("/");
-  }
+  const { logout, isLoggingOut } = useLogout();
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border/70 bg-background/80 px-4 backdrop-blur-md sm:px-6">
       <SidebarTrigger className="-ml-1" />
@@ -71,7 +66,8 @@ export function TopBar() {
           variant="ghost"
           size="icon"
           aria-label="Sign out"
-          onClick={handleLogout}
+          onClick={logout}
+          disabled={isLoggingOut}
         >
           <LogOut className="h-4 w-4" />
         </Button>

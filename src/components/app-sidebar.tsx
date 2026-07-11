@@ -24,8 +24,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import { LogoutButton } from "@/components/auth/LogoutButton";
+import { useAuth } from "@/auth/useAuth";
 
 const nav = [
   { title: "Overview", url: "/", icon: LayoutDashboard },
@@ -42,6 +45,7 @@ const manage = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { admin } = useAuth();
   const isActive = (u: string) =>
     u === "/" ? pathname === "/" : pathname.startsWith(u);
 
@@ -120,6 +124,23 @@ export function AppSidebar() {
             New upload
           </Button>
         </div>
+
+        <SidebarSeparator className="my-1" />
+
+        {admin && (
+          <div className="flex min-w-0 flex-col px-2 group-data-[collapsible=icon]:hidden">
+            <span className="truncate text-xs font-medium text-sidebar-foreground">
+              {admin.name || admin.email}
+            </span>
+            {admin.role && (
+              <span className="truncate text-[11px] capitalize text-sidebar-foreground/60">
+                {admin.role}
+              </span>
+            )}
+          </div>
+        )}
+
+        <LogoutButton />
       </SidebarFooter>
     </Sidebar>
   );

@@ -1,5 +1,7 @@
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
+import { Toaster } from "sonner";
+import { AuthProvider } from "@/auth/AuthProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -41,8 +43,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-background">
       <body className="antialiased">
-        {children}
-        {process.env.NODE_ENV === "production" && <Analytics />}
+        <AuthProvider>
+          {children}
+          <Toaster richColors position="top-right" closeButton />
+          {process.env.NODE_ENV === "production" && <Analytics />}
+        </AuthProvider>
       </body>
     </html>
   );

@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { TopBar } from "@/components/top-bar";
+import { RequireAuth } from "@/auth/auth.guard";
 
 export const metadata: Metadata = {
   title: "Dashboard · MIVA Hubble Admin",
@@ -15,14 +16,16 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
-      <div className="flex h-screen w-full">
-        <AppSidebar />
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <TopBar />
-          <main className="flex-1 overflow-y-auto">{children}</main>
+    <RequireAuth>
+      <SidebarProvider>
+        <div className="flex h-screen w-full">
+          <AppSidebar />
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <TopBar />
+            <main className="flex-1 overflow-y-auto">{children}</main>
+          </div>
         </div>
-      </div>
-    </SidebarProvider>
+      </SidebarProvider>
+    </RequireAuth>
   );
 }

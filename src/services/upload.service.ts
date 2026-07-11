@@ -1,3 +1,5 @@
+import { apiClient } from "@/api/axios";
+import { isApiClientError } from "@/interceptors/response.interceptor";
 import type {
   UploadFormData,
   UploadResponse,
@@ -35,100 +37,79 @@ export function validateFile(file: File): FileValidation {
 }
 
 /**
- * Upload resource to backend API
+ * Upload resource to backend API.
+ *
+ * Goes through `apiClient` (not raw fetch) so it shares the admin's
+ * HttpOnly-cookie auth session, the 401 -> refresh -> retry lifecycle,
+ * and consistent error normalization with the rest of the app.
  */
 export async function uploadResource(
   formData: UploadFormData,
 ): Promise<UploadResponse> {
+  if (!formData.file) {
+    return { success: false, message: "No file provided" };
+  }
+
+  const validation = validateFile(formData.file);
+  if (!validation.valid) {
+    return {
+      success: false,
+      message: validation.error || "Validation failed",
+    };
+  }
+
+  const uploadFormData = new FormData();
+  uploadFormData.append("file", formData.file);
+  uploadFormData.append("title", formData.title);
+  uploadFormData.append("author", formData.author);
+  uploadFormData.append("contentType", formData.contentType);
+  uploadFormData.append("bookType", formData.bookType);
+  uploadFormData.append("department", formData.department);
+  uploadFormData.append("level", formData.level);
+  uploadFormData.append("tags", JSON.stringify(formData.tags));
+  uploadFormData.append("description", formData.description);
+
   try {
-    if (!formData.file) {
-      return { success: false, message: "No file provided" };
-    }
-
-    const validation = validateFile(formData.file);
-    if (!validation.valid) {
-      return {
-        success: false,
-        message: validation.error || "Validation failed",
-      };
-    }
-
-    // Prepare FormData for upload
-    const uploadFormData = new FormData();
-    uploadFormData.append("file", formData.file);
-    uploadFormData.append("title", formData.title);
-    uploadFormData.append("author", formData.author);
-    uploadFormData.append("contentType", formData.contentType);
-    uploadFormData.append("bookType", formData.bookType);
-    uploadFormData.append("department", formData.department);
-    uploadFormData.append("level", formData.level);
-    uploadFormData.append("tags", JSON.stringify(formData.tags));
-    uploadFormData.append("description", formData.description);
-
-    // Send to API endpoint
-    const response = await fetch("/api/library/upload", {
-      method: "POST",
-      body: uploadFormData,
+    const { data } = await apiClient.post("/library/upload", uploadFormData, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
 
-    if (!response.ok) {
-      return {
-        success: false,
-        message: `Upload failed: ${response.statusText}`,
-      };
-    }
-
-    const data = await response.json();
     return {
       success: true,
       resourceId: data.resourceId,
       message: "Resource uploaded successfully",
     };
   } catch (error) {
-    console.error("Upload error:", error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Upload failed",
+      message: isApiClientError(error) ? error.message : "Upload failed",
       error: String(error),
     };
   }
 }
 
 /**
- * Save resource metadata as draft (without file)
+ * Save resource metadata as draft (without file).
  */
 export async function saveDraft(
   formData: UploadFormData,
 ): Promise<UploadResponse> {
   try {
-    const response = await fetch("/api/library/draft", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...formData,
-        // Remove File object - can't serialize
-        file: null,
-      }),
+    const { data } = await apiClient.post("/library/draft", {
+      ...formData,
+      // Remove File object - can't serialize
+      file: null,
     });
 
-    if (!response.ok) {
-      return {
-        success: false,
-        message: `Save failed: ${response.statusText}`,
-      };
-    }
-
-    const data = await response.json();
     return {
       success: true,
       resourceId: data.draftId,
       message: "Draft saved successfully",
     };
   } catch (error) {
-    console.error("Draft save error:", error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Save failed",
+      message: isApiClientError(error) ? error.message : "Save failed",
     };
   }
 }

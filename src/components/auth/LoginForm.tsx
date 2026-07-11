@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type { LoginFormData } from "@/lib/schemas/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { loginRequest } from "@/lib/api/auth";
-import { isApiClientError } from "@/lib/api/client";
-import { setAuthToken } from "@/lib/auth/token";
+import { useAuth } from "@/auth/useAuth";
+import { isApiClientError } from "@/interceptors/response.interceptor";
+import { consumeRedirectTarget } from "@/auth/auth.storage";
 import {
   Card,
   CardContent,
@@ -25,6 +27,8 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onSubmit }: LoginFormProps) {
+  const { login } = useAuth();
+  const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [canRetry, setCanRetry] = useState(false);
@@ -40,6 +44,17 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
     mode: "onBlur",
   });
 
+  // Surface the "you were signed out" toast here (after the hard redirect
+  // from the axios interceptor lands us back on this page) rather than
+  // trying to show it right before the redirect, where it'd never render.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("session") === "expired") {
+      toast.error("Your session has expired. Please sign in again.");
+    }
+  }, []);
+
   const handleFormSubmit = async (data: LoginFormData) => {
     setServerError(null);
     setSuccessMessage(null);
@@ -50,18 +65,15 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
       if (onSubmit) {
         await onSubmit(data);
       } else {
-        const response = await loginRequest(data);
-        if (response.success === false) {
-          setServerError(response.error ?? response.message ?? "Authentication failed.");
-          return;
-        }
-        if (response.token) {
-          setAuthToken(response.token);
-        }
+        await login(data);
       }
 
       setSuccessMessage("Signed in successfully.");
+      toast.success("Signed in successfully.");
       reset({ ...data, password: "" });
+
+      const next = consumeRedirectTarget();
+      router.replace(next ?? "/dashboard");
     } catch (error) {
       if (isApiClientError(error)) {
         let hasFieldErrors = false;
@@ -77,12 +89,16 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
         if (!hasFieldErrors) {
           setServerError(error.message);
           setCanRetry(error.retryable);
+          toast.error(error.message);
+        } else {
+          toast.error("Please fix the highlighted fields and try again.");
         }
         return;
       }
 
       setServerError("An unexpected error occurred. Please try again.");
       setCanRetry(true);
+      toast.error("An unexpected error occurred. Please try again.");
     }
   };
 
