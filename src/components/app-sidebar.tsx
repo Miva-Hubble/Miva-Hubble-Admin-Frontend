@@ -1,0 +1,126 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  Library,
+  Users,
+  BarChart3,
+  ShieldCheck,
+  Bell,
+  Settings,
+  Sparkles,
+  Upload,
+} from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+
+const nav = [
+  { title: "Overview", url: "/", icon: LayoutDashboard },
+  { title: "Library", url: "/library", icon: Library },
+  { title: "Users", url: "/users", icon: Users },
+  { title: "Analytics", url: "/analytics", icon: BarChart3 },
+];
+
+const manage = [
+  { title: "Moderation", url: "/moderation", icon: ShieldCheck },
+  { title: "Notifications", url: "/notifications", icon: Bell },
+  { title: "Settings", url: "/settings", icon: Settings },
+];
+
+export function AppSidebar() {
+  const pathname = usePathname();
+  const isActive = (u: string) =>
+    u === "/" ? pathname === "/" : pathname.startsWith(u);
+
+  return (
+    <Sidebar collapsible="icon">
+      <SidebarHeader className="border-b border-sidebar-border">
+        <Link href="/" className="flex items-center gap-2.5 px-2 py-2">
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-primary text-primary-foreground shadow-elegant">
+            <Sparkles className="h-4 w-4" />
+          </div>
+          <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
+            <span className="truncate font-display text-base font-bold leading-none">
+              MIVA Hubble
+            </span>
+            <span className="mt-1 truncate text-[11px] text-muted-foreground">
+              Admin Console
+            </span>
+          </div>
+        </Link>
+      </SidebarHeader>
+
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {nav.map((i) => (
+                <SidebarMenuItem key={i.url}>
+                  <SidebarMenuButton
+                    render={<Link href={i.url} />}
+                    isActive={isActive(i.url)}
+                    tooltip={i.title}
+                  >
+                    <i.icon />
+                    <span>{i.title}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Manage</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {manage.map((i) => (
+                <SidebarMenuItem key={i.url}>
+                  <SidebarMenuButton
+                    render={<Link href={i.url} />}
+                    isActive={isActive(i.url)}
+                    tooltip={i.title}
+                  >
+                    <i.icon />
+                    <span>{i.title}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter className="border-t border-sidebar-border">
+        <div className="rounded-xl bg-gradient-primary p-3 text-primary-foreground shadow-elegant group-data-[collapsible=icon]:hidden">
+          <p className="font-display text-sm font-semibold">Upload resource</p>
+          <p className="mt-0.5 text-[11px] opacity-90">
+            Publish a new book, PDF or reading pack.
+          </p>
+          <Button
+            size="sm"
+            variant="secondary"
+            className="mt-2 h-8 w-full bg-white/95 text-primary hover:bg-white"
+          >
+            <Upload className="h-3.5 w-3.5" />
+            New upload
+          </Button>
+        </div>
+      </SidebarFooter>
+    </Sidebar>
+  );
+}

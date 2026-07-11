@@ -1,0 +1,49 @@
+"use client";
+
+import * as React from "react";
+import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
+
+import { cn } from "@/lib/utils";
+
+function Tooltip({ ...props }: TooltipPrimitive.Root.Props) {
+  return <TooltipPrimitive.Root data-slot="tooltip" {...props} />;
+}
+
+function TooltipProvider({ ...props }: TooltipPrimitive.Provider.Props) {
+  return <TooltipPrimitive.Provider data-slot="tooltip-provider" {...props} />;
+}
+
+function TooltipTrigger({ ...props }: TooltipPrimitive.Trigger.Props) {
+  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
+}
+
+function TooltipContent({
+  className,
+  side = "top",
+  align = "center",
+  sideOffset = 6,
+  ...props
+}: TooltipPrimitive.Popup.Props &
+  Pick<TooltipPrimitive.Positioner.Props, "side" | "align" | "sideOffset">) {
+  return (
+    <TooltipPrimitive.Portal>
+      <TooltipPrimitive.Positioner
+        data-slot="tooltip-positioner"
+        side={side}
+        align={align}
+        sideOffset={sideOffset}
+      >
+        <TooltipPrimitive.Popup
+          data-slot="tooltip-content"
+          className={cn(
+            "z-50 w-fit origin-(--transform-origin) rounded-md bg-popover px-2 py-1 text-xs text-popover-foreground shadow-md transition-[transform,opacity] data-ending-style:opacity-0 data-ending-style:scale-95 data-starting-style:opacity-0 data-starting-style:scale-95",
+            className,
+          )}
+          {...props}
+        />
+      </TooltipPrimitive.Positioner>
+    </TooltipPrimitive.Portal>
+  );
+}
+
+export { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent };
