@@ -7,7 +7,6 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "MIVA Hubble Admin",
   description: "Admin dashboard for MIVA Hubble",
-  generator: "v0.app",
   icons: {
     icon: [
       {

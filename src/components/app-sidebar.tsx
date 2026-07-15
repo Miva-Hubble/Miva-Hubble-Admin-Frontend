@@ -10,7 +10,7 @@ import {
   ShieldCheck,
   Bell,
   Settings,
-  Sparkles,
+  BookOpen,
   Upload,
 } from "lucide-react";
 import {
@@ -27,8 +27,19 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import { useAuth } from "@/auth/useAuth";
+
+function getInitials(name?: string, email?: string) {
+  const source = name?.trim() || email?.trim() || "";
+  if (!source) return "?";
+  const parts = source.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  return source.slice(0, 2).toUpperCase();
+}
 
 const nav = [
   { title: "Overview", url: "/", icon: LayoutDashboard },
@@ -54,7 +65,7 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border">
         <Link href="/" className="flex items-center gap-2.5 px-2 py-2">
           <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-primary text-primary-foreground shadow-elegant">
-            <Sparkles className="h-4 w-4" />
+            <BookOpen className="h-4 w-4" />
           </div>
           <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
             <span className="truncate font-display text-base font-bold leading-none">
@@ -128,15 +139,20 @@ export function AppSidebar() {
         <SidebarSeparator className="my-1" />
 
         {admin && (
-          <div className="flex min-w-0 flex-col px-2 group-data-[collapsible=icon]:hidden">
-            <span className="truncate text-xs font-medium text-sidebar-foreground">
-              {admin.name || admin.email}
-            </span>
-            {admin.role && (
-              <span className="truncate text-[11px] capitalize text-sidebar-foreground/60">
-                {admin.role}
+          <div className="flex items-center gap-2.5 rounded-xl border border-sidebar-border/70 px-2 py-1.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-transparent group-data-[collapsible=icon]:px-0">
+            <Avatar className="h-8 w-8 shrink-0">
+              <AvatarFallback className="bg-gradient-primary text-[11px] font-semibold text-primary-foreground">
+                {getInitials(admin.name, admin.email)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex min-w-0 flex-col leading-tight group-data-[collapsible=icon]:hidden">
+              <span className="truncate text-xs font-medium text-sidebar-foreground">
+                {admin.name || admin.email}
               </span>
-            )}
+              <span className="truncate text-[11px] capitalize text-sidebar-foreground/60">
+                {admin.role || admin.email}
+              </span>
+            </div>
           </div>
         )}
 

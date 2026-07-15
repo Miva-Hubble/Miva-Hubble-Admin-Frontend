@@ -3,12 +3,9 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useLogout } from "@/hooks/useLogout";
-import { Bell, LogOut, MessageSquare, Search, Sparkles } from "lucide-react";
+import { Bell, MessageSquare, Search } from "lucide-react";
 
 export function TopBar() {
-  const { logout, isLoggingOut } = useLogout();
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border/70 bg-background/80 px-4 backdrop-blur-md sm:px-6">
       <SidebarTrigger className="-ml-1" />
@@ -26,14 +23,6 @@ export function TopBar() {
         <Button
           variant="ghost"
           size="icon"
-          aria-label="AI assistant"
-          className="hidden sm:inline-flex"
-        >
-          <Sparkles className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
           aria-label="Messages"
           className="relative"
         >
@@ -48,28 +37,6 @@ export function TopBar() {
         >
           <Bell className="h-4 w-4" />
           <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-primary" />
-        </Button>
-        <div className="ml-2 flex items-center gap-2.5 rounded-full border border-border/70 py-1 pl-1 pr-3">
-          <Avatar className="h-7 w-7">
-            <AvatarFallback className="bg-gradient-primary text-[11px] font-semibold text-primary-foreground">
-              AD
-            </AvatarFallback>
-          </Avatar>
-          <div className="hidden text-left leading-tight sm:block">
-            <p className="text-xs font-semibold">Ada Okafor</p>
-            <p className="text-[10px] text-muted-foreground">
-              Librarian · MIVA
-            </p>
-          </div>
-        </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Sign out"
-          onClick={logout}
-          disabled={isLoggingOut}
-        >
-          <LogOut className="h-4 w-4" />
         </Button>
       </div>
     </header>

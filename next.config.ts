@@ -1,20 +1,11 @@
 import type { NextConfig } from "next";
 
-// Backend origin the /api/* rewrite proxies to. Kept here (not read from
-// NEXT_PUBLIC_API_BASE_URL) because this runs server-side at request time,
-// not in the browser bundle.
-const BACKEND_ORIGIN =
-  process.env.BACKEND_ORIGIN ?? "https://miva-hubble-backend.onrender.com";
-
-const nextConfig: NextConfig = {
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${BACKEND_ORIGIN}/api/:path*`,
-      },
-    ];
-  },
-};
+// The /api/* backend proxy used to live here as a `rewrites()` entry to
+// an external origin. That's moved to src/app/api/[...path]/route.ts —
+// an actual Route Handler instead of an edge rewrite rule — because a
+// plain external rewrite produces no Vercel Function logs and gave no
+// visibility into header/body forwarding issues when things went wrong
+// in production. See that file for the proxy implementation.
+const nextConfig: NextConfig = {};
 
 export default nextConfig;

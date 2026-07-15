@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { CloudUpload, Sparkles } from "lucide-react";
+import { CloudUpload, Maximize2, Minimize2, Users } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -56,6 +57,7 @@ export function UploadResourceDialog({ trigger }: Props) {
 
 function UploadDialogBody({ onDone }: { onDone: () => void }) {
   const [drag, setDrag] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [contentType, setContentType] = useState<ContentType>("pdf");
   const [bookType, setBookType] = useState<string>("textbook");
   const [dept, setDept] = useState<string>("computer-science");
@@ -135,8 +137,27 @@ function UploadDialogBody({ onDone }: { onDone: () => void }) {
   };
 
   return (
-    <DialogContent className="max-w-2xl">
-      <DialogHeader>
+    <DialogContent
+      className={cn(
+        "transition-[max-width,height] duration-200",
+        expanded
+          ? "flex h-[85vh] max-w-4xl flex-col overflow-hidden"
+          : "max-w-2xl",
+      )}
+    >
+      <DialogHeader className="relative pr-8">
+        <button
+          type="button"
+          onClick={() => setExpanded((prev) => !prev)}
+          aria-label={expanded ? "Collapse dialog" : "Expand dialog"}
+          className="absolute -top-1 right-9 grid size-8 cursor-pointer place-items-center rounded-md text-muted-foreground transition-all hover:-translate-y-0.5 hover:bg-muted hover:text-foreground active:translate-y-0 active:scale-95"
+        >
+          {expanded ? (
+            <Minimize2 className="h-4 w-4" />
+          ) : (
+            <Maximize2 className="h-4 w-4" />
+          )}
+        </button>
         <DialogTitle className="font-display text-xl">
           Upload resource
         </DialogTitle>
@@ -146,6 +167,9 @@ function UploadDialogBody({ onDone }: { onDone: () => void }) {
       </DialogHeader>
 
       <div
+        className={cn(expanded && "flex-1 space-y-4 overflow-y-auto pr-1")}
+      >
+        <div
         onDragOver={(e) => {
           e.preventDefault();
           setDrag(true);
@@ -312,7 +336,7 @@ function UploadDialogBody({ onDone }: { onDone: () => void }) {
                       on ? prev.filter((x) => x !== t) : [...prev, t],
                     )
                   }
-                  className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
+                  className={`cursor-pointer rounded-full border px-2.5 py-1 text-xs transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95 ${
                     on
                       ? "border-transparent bg-gradient-primary text-primary-foreground shadow-sm"
                       : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
@@ -343,13 +367,14 @@ function UploadDialogBody({ onDone }: { onDone: () => void }) {
       </div>
 
       <div
-        className="rounded-lg border border-primary/20 p-4 bg-primary/10"
+        className="rounded-lg border border-primary/20 bg-primary/10 p-4"
       >
-        <p className="flex items-center gap-2 font-semibold text-sm text-primary">
-          <Sparkles className="h-4 w-4" /> Estimated audience:{" "}
+        <p className="flex items-center gap-2 text-sm font-semibold text-primary">
+          <Users className="h-4 w-4" /> Estimated audience:{" "}
           {audience.count.toLocaleString()} students
         </p>
         <p className="mt-1.5 text-xs text-muted-foreground">{audience.label}</p>
+      </div>
       </div>
 
       <DialogFooter>
