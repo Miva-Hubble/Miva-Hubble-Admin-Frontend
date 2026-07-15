@@ -8,7 +8,7 @@ import { setRedirectTarget } from "@/auth/auth.storage";
 /**
  * Wrap any protected layout/page with this. Renders nothing (well, a
  * loading state) until we know whether there's a valid session, then either
- * renders `children` or redirects to `/`.
+ * renders `children` or redirects to `/login`.
  */
 export function RequireAuth({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -19,7 +19,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
       if (typeof window !== "undefined") {
         setRedirectTarget(`${window.location.pathname}${window.location.search}`);
       }
-      router.replace("/");
+      router.replace("/login");
     }
   }, [isLoading, isAuthenticated, router]);
 

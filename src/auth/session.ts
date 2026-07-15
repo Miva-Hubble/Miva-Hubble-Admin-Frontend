@@ -1,4 +1,4 @@
-const AUTH_PATHS = new Set(["/", "/login"]);
+const AUTH_PATHS = new Set(["/login"]);
 
 export function isAuthPage(pathname: string): boolean {
   return AUTH_PATHS.has(pathname);
@@ -21,5 +21,5 @@ export function redirectToLogin(): void {
   const next = `${window.location.pathname}${window.location.search}${window.location.hash}`;
   const query = new URLSearchParams({ session: "expired", next });
 
-  window.location.assign(`/?${query.toString()}`);
+  window.location.assign(`/login?${query.toString()}`);
 }

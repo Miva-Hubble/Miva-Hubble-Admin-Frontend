@@ -42,28 +42,28 @@ function getInitials(name?: string, email?: string) {
 }
 
 const nav = [
-  { title: "Overview", url: "/", icon: LayoutDashboard },
-  { title: "Library", url: "/library", icon: Library },
-  { title: "Users", url: "/users", icon: Users },
-  { title: "Analytics", url: "/analytics", icon: BarChart3 },
+  { title: "Overview", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Library", url: "/dashboard/library", icon: Library },
+  { title: "Users", url: "/dashboard/users", icon: Users },
+  { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
 ];
 
 const manage = [
-  { title: "Moderation", url: "/moderation", icon: ShieldCheck },
-  { title: "Notifications", url: "/notifications", icon: Bell },
-  { title: "Settings", url: "/settings", icon: Settings },
+  { title: "Moderation", url: "/dashboard/moderation", icon: ShieldCheck },
+  { title: "Notifications", url: "/dashboard/notifications", icon: Bell },
+  { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { admin } = useAuth();
   const isActive = (u: string) =>
-    u === "/" ? pathname === "/" : pathname.startsWith(u);
+    u === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(u);
 
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
-        <Link href="/" className="flex items-center gap-2.5 px-2 py-2">
+        <Link href="/dashboard" className="flex items-center gap-2.5 px-2 py-2">
           <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-primary text-primary-foreground shadow-elegant">
             <BookOpen className="h-4 w-4" />
           </div>

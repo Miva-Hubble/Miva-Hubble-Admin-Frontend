@@ -26,7 +26,7 @@ export function useLogout() {
       toast.error(message);
     } finally {
       setIsLoggingOut(false);
-      router.replace("/");
+      router.replace("/login");
     }
   }, [logout, router]);
 

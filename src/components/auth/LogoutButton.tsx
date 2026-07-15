@@ -60,7 +60,7 @@ export function LogoutButton() {
     } finally {
       setIsLoggingOut(false);
       setOpen(false);
-      router.replace("/");
+      router.replace("/login");
     }
   };
 
