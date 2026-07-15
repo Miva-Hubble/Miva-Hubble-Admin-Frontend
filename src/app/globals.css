@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -52,7 +52,7 @@
 
 :root {
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  --font-display: 'Wapilor', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --font-display: 'Sora', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 
   --background: #FCFBFC; /* Frost */
   --foreground: #0E1240; /* Deep Night Blue */
@@ -127,24 +127,6 @@
   --sidebar-ring: rgba(252, 251, 252, 0.4);
 }
 
-@font-face {
-  font-family: 'Wapilor';
-  src: url('/fonts/Wapilor-Regular.woff2') format('woff2'),
-       url('/fonts/Wapilor-Regular.woff') format('woff');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Wapilor';
-  src: url('/fonts/Wapilor-Bold.woff2') format('woff2'),
-       url('/fonts/Wapilor-Bold.woff') format('woff');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
 @utility bg-gradient-primary {
   background-image: linear-gradient(135deg, #151B54 0%, #2A3178 50%, #7C1D24 100%);
 }
@@ -170,5 +152,31 @@
   }
   html {
     @apply font-sans;
+  }
+
+  /*
+   * Browser autofill (e.g. picking a suggested email/password from the
+   * dropdown) is rendered by the browser itself via the :autofill /
+   * :-webkit-autofill pseudo-class, which forces its own background
+   * (through an inset box-shadow trick) and text color (through
+   * -webkit-text-fill-color, a separate property from `color` that
+   * regular CSS — including `!important` on `color` — cannot override).
+   * Without this, autofilled fields ignore all our Tailwind classes and
+   * fall back to the browser's own light-text-on-dark (or vice versa)
+   * autofill styling. This forces it to match our filled light-gray /
+   * black-text field style instead.
+   */
+  input:autofill,
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-text-fill-color: #000000;
+    caret-color: #000000;
+    -webkit-box-shadow: 0 0 0px 1000px #f4f4f5 inset;
+    box-shadow: 0 0 0px 1000px #f4f4f5 inset;
+    /* Delays the browser's own autofill flash (e.g. Chrome's yellow tint)
+       long enough that it never becomes visible before ours applies. */
+    transition: background-color 9999s ease-in-out 0s;
   }
 }
