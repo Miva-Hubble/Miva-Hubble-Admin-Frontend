@@ -1,19 +1,10 @@
-import axios, { AxiosError, type AxiosInstance } from "axios";
+import axios, { type AxiosInstance } from "axios";
 import { refreshSession } from "@/services/refresh.service";
 import { redirectToLogin } from "@/auth/session";
+import { normalizeError } from "@/errors/normalizeError";
+import type { AppError } from "@/errors/error.types";
 
-type ErrorPayload = {
-  message?: string;
-  error?: string;
-  errors?: Record<string, string | string[]>;
-};
-
-export interface ApiClientError extends Error {
-  status?: number;
-  fieldErrors: Record<string, string>;
-  isNetworkError: boolean;
-  retryable: boolean;
-}
+export interface ApiClientError extends Error, AppError {}
 
 export function isApiClientError(error: unknown): error is ApiClientError {
   return (
@@ -72,59 +63,13 @@ function normalizeApiError(error: unknown): ApiClientError {
     return error;
   }
 
-  if (!axios.isAxiosError(error)) {
-    const unknownError = new Error(
-      "Something went wrong. Please try again.",
-    ) as ApiClientError;
-    unknownError.fieldErrors = {};
-    unknownError.isNetworkError = false;
-    unknownError.retryable = false;
-    return unknownError;
-  }
-
-  const axiosError = error as AxiosError<ErrorPayload>;
-  const status = axiosError.response?.status;
-  const payload = axiosError.response?.data;
-  const fieldErrors = normalizeFieldErrors(payload?.errors);
-  const message =
-    payload?.message ??
-    payload?.error ??
-    fallbackErrorMessage(status, axiosError.message);
-
-  const appError = new Error(message) as ApiClientError;
-  appError.status = status;
-  appError.fieldErrors = fieldErrors;
-  appError.isNetworkError = !axiosError.response;
-  appError.retryable =
-    appError.isNetworkError || (typeof status === "number" && status >= 500);
-
-  return appError;
-}
-
-function normalizeFieldErrors(
-  errors?: Record<string, string | string[]>,
-): Record<string, string> {
-  if (!errors) return {};
-
-  const normalized: Record<string, string> = {};
-  for (const [field, value] of Object.entries(errors)) {
-    normalized[field] = Array.isArray(value) ? value[0] ?? "Invalid value" : value;
-  }
-  return normalized;
-}
-
-function fallbackErrorMessage(status?: number, defaultMessage?: string): string {
-  if (!status) {
-    return "Network error. Please check your connection and try again.";
-  }
-  if (status === 401) {
-    return "Invalid credentials. Please check your email and password.";
-  }
-  if (status === 422) {
-    return "Validation failed. Please check your input.";
-  }
-  if (status >= 500) {
-    return "Server error. Please try again in a moment.";
-  }
-  return defaultMessage || "An unexpected error occurred. Please try again.";
+  const appError = normalizeError(error);
+  const apiError = new Error(appError.message) as ApiClientError;
+  apiError.title = appError.title;
+  apiError.status = appError.status;
+  apiError.type = appError.type;
+  apiError.fieldErrors = appError.fieldErrors;
+  apiError.isNetworkError = appError.isNetworkError;
+  apiError.retryable = appError.retryable;
+  return apiError;
 }

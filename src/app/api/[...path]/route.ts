@@ -35,6 +35,16 @@ const STRIPPED_RESPONSE_HEADERS = new Set([
   "connection",
   "content-encoding",
   "transfer-encoding",
+  // undici's fetch() transparently decompresses gzip/br bodies but leaves
+  // the ORIGINAL (compressed) Content-Length header untouched. Forwarding
+  // that stale length alongside the now-decompressed body causes the
+  // browser to see a byte count that doesn't match what's actually
+  // streamed, and abort the response mid-read with
+  // net::ERR_CONTENT_LENGTH_MISMATCH — the response status (e.g. 401)
+  // still arrives, but the JSON body never does, so callers can't read
+  // the real backend error message. Dropping it here lets the runtime
+  // recompute (or chunk) it correctly for the actual bytes being sent.
+  "content-length",
 ]);
 
 async function proxy(req: NextRequest, path: string[]) {
@@ -61,9 +71,34 @@ async function proxy(req: NextRequest, path: string[]) {
       duplex: hasBody ? "half" : undefined,
     });
   } catch (error) {
+    const cause =
+      error instanceof Error && "cause" in error
+        ? (error.cause as { code?: string } | undefined)
+        : undefined;
     console.error(`[api-proxy] ${req.method} ${targetUrl} failed:`, error);
+
+    // In dev, say exactly what's wrong instead of a bare "502" — this is
+    // the failure mode that used to take a trip through this file's git
+    // blame to diagnose. In prod, keep the response generic; the real
+    // detail is still in the server logs above.
+    const devDetail =
+      process.env.NODE_ENV !== "production"
+        ? {
+            target: targetUrl.toString(),
+            code: cause?.code ?? null,
+            hint:
+              cause?.code === "ECONNREFUSED"
+                ? "Nothing is listening at BACKEND_ORIGIN. Either start the backend locally, or point BACKEND_ORIGIN in .env.local at the Render URL."
+                : "If BACKEND_ORIGIN points at Render, the free-tier instance may be spinning up from idle (can take 30-60s) — retry in a moment.",
+          }
+        : {};
+
     return NextResponse.json(
-      { statusCode: 502, message: "Could not reach the backend service." },
+      {
+        statusCode: 502,
+        message: "Could not reach the backend service.",
+        ...devDetail,
+      },
       { status: 502 },
     );
   }
