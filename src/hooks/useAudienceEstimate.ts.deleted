@@ -1,21 +1,16 @@
 "use client";
 
 import { useMemo } from "react";
-import type { AudienceTag } from "@/lib/enums";
-import { DEPARTMENTS, LEVELS } from "@/lib/enums";
 import type { AudienceEstimate } from "@/types/upload";
 
 export function useAudienceEstimate(
   department: string,
   level: string,
-  tags: AudienceTag[],
+  tags: string[],
 ): AudienceEstimate {
   return useMemo(() => {
-    const deptLabel =
-      DEPARTMENTS.find((d) => d.value === department)?.label ??
-      "All departments";
-    const levelLabel =
-      LEVELS.find((l) => l.value === level)?.label ?? "All levels";
+    const deptLabel = department && department !== "All" ? department : "All departments";
+    const levelLabel = level && level !== "All" ? `Level ${level}` : "All levels";
 
     const base = 260 + ((department.length * 37 + level.length * 91) % 900);
     const narrowed =

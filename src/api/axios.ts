@@ -30,7 +30,9 @@ declare module "axios" {
  */
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 15000,
+  // Render free-tier instances cold-start in 30–60 s when idle.
+  // 70 s gives one full cold-start cycle headroom before timing out.
+  timeout: 70000,
   withCredentials: true,
   headers: {
     Accept: "application/json",

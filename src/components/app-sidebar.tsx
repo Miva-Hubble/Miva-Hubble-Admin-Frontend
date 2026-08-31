@@ -121,21 +121,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
-        <div className="rounded-xl bg-gradient-primary p-3 text-primary-foreground shadow-elegant group-data-[collapsible=icon]:hidden">
-          <p className="font-display text-sm font-semibold">Upload resource</p>
-          <p className="mt-0.5 text-[11px] opacity-90">
-            Publish a new book, PDF or reading pack.
-          </p>
-          <Button
-            size="sm"
-            variant="secondary"
-            className="mt-2 h-8 w-full bg-white/95 text-primary hover:bg-white"
-          >
-            <Upload className="h-3.5 w-3.5" />
-            New upload
-          </Button>
-        </div>
-
+        
         <SidebarSeparator className="my-1" />
 
         {admin && (

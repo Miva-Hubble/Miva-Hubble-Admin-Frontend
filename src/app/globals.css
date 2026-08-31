@@ -180,3 +180,9 @@
     transition: background-color 9999s ease-in-out 0s;
   }
 }
+
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  50%  { transform: translateX(100%); }
+  100% { transform: translateX(100%); }
+}

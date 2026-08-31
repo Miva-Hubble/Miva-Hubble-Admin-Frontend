@@ -60,6 +60,10 @@ async function proxy(req: NextRequest, path: string[]) {
 
   const hasBody = !["GET", "HEAD"].includes(req.method);
 
+  // Give Render's free-tier backend up to 75 s to cold-start before aborting.
+  const controller = new AbortController();
+  const proxyTimeout = setTimeout(() => controller.abort(), 75_000);
+
   let upstream: Response;
   try {
     upstream = await fetch(targetUrl, {
@@ -67,10 +71,13 @@ async function proxy(req: NextRequest, path: string[]) {
       headers: requestHeaders,
       body: hasBody ? await req.arrayBuffer() : undefined,
       redirect: "manual",
+      signal: controller.signal,
       // @ts-expect-error -- required by undici when streaming a body
       duplex: hasBody ? "half" : undefined,
     });
+    clearTimeout(proxyTimeout);
   } catch (error) {
+    clearTimeout(proxyTimeout);
     const cause =
       error instanceof Error && "cause" in error
         ? (error.cause as { code?: string } | undefined)
