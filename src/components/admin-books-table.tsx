@@ -63,7 +63,7 @@ export function AdminBooksTable() {
         <p className="text-sm text-muted-foreground">
           {error?.message || "Failed to load books."}
         </p>
-        <Button size="sm" variant="outline" onClick={refetch}>
+        <Button size="sm" variant="outline" onClick={() => refetch()}>
           Try again
         </Button>
       </div>
