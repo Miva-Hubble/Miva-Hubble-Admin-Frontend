@@ -213,7 +213,7 @@ export function UploadResourceForm({
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3">
           <div className="flex items-center gap-2 text-xs text-destructive">
             <AlertTriangle className="h-3.5 w-3.5" />
-            Couldn't load levels, departments and tags.
+            Could not load levels, departments and tags.
           </div>
           <button
             type="button"

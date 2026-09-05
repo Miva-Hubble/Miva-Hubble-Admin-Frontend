@@ -118,8 +118,10 @@ export function AdminBooksTable() {
                   </div>
                 </td>
                 <td className="py-3 pr-4">
-                  <Badge variant={STATUS_BADGE_VARIANT[book.status]}>
-                    {book.status.charAt(0) + book.status.slice(1).toLowerCase()}
+                  <Badge variant={book.status ? STATUS_BADGE_VARIANT[book.status] : "default"}>
+                    {book.status
+                      ? book.status.charAt(0) + book.status.slice(1).toLowerCase()
+                      : "Published"}
                   </Badge>
                 </td>
                 <td className="py-3 pr-4">

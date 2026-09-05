@@ -25,7 +25,7 @@ export function UploadResourceDialog({ trigger }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={trigger} />
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl p-6 sm:p-8">
+      <DialogContent className="w-[95vw] sm:max-w-4xl lg:max-w-5xl max-h-[90vh] overflow-y-auto rounded-3xl p-6 sm:p-8 shadow-elegant">
         <DialogHeader className="sr-only">
           <DialogTitle>Upload Resource</DialogTitle>
           <DialogDescription>
